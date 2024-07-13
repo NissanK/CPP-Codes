@@ -12,11 +12,11 @@ using namespace __gnu_pbds;
 #define ll 		long long
 #define lld		long double
 #define PI 		3.141592653589793238462
-#define sz(x) 	((int)(x).size())
 #define INF 	1e18
 #define M    	1000000007
 #define MOD1	 998244353
-#define INF 	1e18
+#define MOD2   	1000000009
+#define MOD3    1000000021
 #define nline 	"\n"
 #define pb 		push_back
 #define ppb 	pop_back
@@ -58,17 +58,116 @@ vector<int> sieve(int n){vector<int> primes(n + 1,1);primes[0] = 0;primes[1] = 0
 // change to j = i*i for better performance
 vector<int> spf(int n){vector<int> spf(n + 1);for(int i = 2;i<=n;i++){spf[i] = i;}for(int i = 2;i*i<=n;i++){if(spf[i] == i){for(int j = i * i;j<=n;j+=i){if(spf[j] == j)spf[j] = i;}}}return spf;}
 
+int binaryExponentiation(int a ,int b,int mod){
+	int ans = 1;
+	while(b>0){
+		if(b&1){
+			ans = (ans * 1ll* a )%mod;
+		}
+		a = (a * 1ll * a)%mod;
+		b >>= 1;
+	}
+	return ans;
+}
+
+
+class SGTree{
+
+    public:
+    vector<int> seg;
+
+    SGTree(int n){
+        seg.resize(4*n + 1);
+    }
+
+    void build(int idx,int low,int high,vector<int> &arr){
+        if(low == high){
+            seg[idx] = arr[low];
+            return;
+        }
+
+        int mid = (low + high)/2;
+        build(2*idx + 1,low,mid,arr);
+        build(2*idx + 2,mid + 1,high,arr);
+
+        seg[idx] = min(seg[2*idx + 1],seg[2*idx + 2]);
+    }
+
+    int query(int idx,int low,int high,int l,int r){
+
+        if(r < low || high < l) return INT_MAX; // no match
+        if(low >= l && high <= r) return seg[idx]; // complete match
+
+        // if not both, then its partial match
+        int mid = (low + high)/2;
+
+        int left = query(2*idx + 1,low,mid,l,r);
+        int right = query(2*idx + 2,mid + 1,high,l,r);
+        return min(left,right);
+    }
+
+    void update(int idx,int low,int high,int pos,int val){
+		//updation on the array is not handled here -> arr[idx] = val; handle it outside
+        if(low == high){
+            seg[idx] = val;
+			return;
+        }
+
+        int mid = (low + high)/2;
+
+        if(pos <= mid){
+            update(2*idx + 1,low,mid,pos,val);
+        }
+        else{
+            update(2*idx + 2,mid + 1,high,pos,val);
+        }
+
+        seg[idx] = min(seg[2*idx + 1],seg[2*idx + 2]);
+    }
+};
+
+vector<int> findPrefixHash(int n,string &s,int mod){
+    vector<int> prefix(n + 1,0);
+
+    for(int i = 1;i<=n;i++){
+        prefix[i] = ((prefix[i-1]*31)%mod + s[i-1] - 'a' + 1)%mod;
+    }
+
+    return prefix;
+}
+
+vector<int> findPowerHash(int n,int mod){
+    vector<int> powers(n + 1,1);
+    for(int i = 1;i<=n;i++){
+        powers[i] = (powers[i-1]*31)%mod;
+    }
+    return powers;
+}
+
 /*.....................................................*/
 
+void testcases(int testcases){
 
-void testcases(int t){
+    int n,m;
+    cin>>n>>m;
+
+    vector<int> adj[n];
+
+    for(int i = 0;i<m;i++){
+        int a,b;
+        cin>>a>>b;
+        adj[b].emplace_back(a);
+        adj[a].emplace_back(b);
+    }
+    
+    
 }
 
 signed main(){
 	fastio();
 	int t=1;
-	// cin>>t;
+	cin>>t;
 	for(int i=0;i<t;i++){
-		testcases(t);
+		testcases(i + 1);
 	}
 }
